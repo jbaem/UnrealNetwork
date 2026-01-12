@@ -7,15 +7,25 @@
 #include "Net/UnrealNetwork.h"
 
 #include "GameFramework/PlayerController.h"
+#include "Components/WidgetComponent.h"
+#include "UI/DisplayValuesWidget.h"
 
 ARepPracCharacter::ARepPracCharacter()
 {
-	
+	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
+	WidgetComponent->SetupAttachment(GetRootComponent());
 }
 
 void ARepPracCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	WidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	if (UDisplayValuesWidget* Widget = Cast<UDisplayValuesWidget>(WidgetComponent->GetWidget()))
+	{
+		OnHealthChange.AddDynamic(Widget, &UDisplayValuesWidget::SetValueText);
+		Widget->SetValueText(Health);
+	}
 }
 
 void ARepPracCharacter::Tick(float DeltaTime)

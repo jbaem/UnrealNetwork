@@ -69,4 +69,7 @@ protected:
 	TObjectPtr<class UInputAction> Task2Action;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<class UInputAction> Task3Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	TObjectPtr<class UWidgetComponent> WidgetComponent;
 };
