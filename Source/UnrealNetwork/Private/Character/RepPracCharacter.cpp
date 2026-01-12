@@ -1,0 +1,80 @@
+#include "Character/RepPracCharacter.h"
+
+#include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
+#include "InputActionValue.h"
+
+#include "Net/UnrealNetwork.h"
+
+#include "GameFramework/PlayerController.h"
+
+ARepPracCharacter::ARepPracCharacter()
+{
+	
+}
+
+void ARepPracCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
+void ARepPracCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+
+void ARepPracCharacter::SetupPlayerInputComponent(UInputComponent * PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	if(UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		EnhancedInputComponent->BindAction(Task1Action, ETriggerEvent::Started, this, &ARepPracCharacter::OnTask1);
+		EnhancedInputComponent->BindAction(Task2Action, ETriggerEvent::Started, this, &ARepPracCharacter::OnTask2);
+		EnhancedInputComponent->BindAction(Task3Action, ETriggerEvent::Started, this, &ARepPracCharacter::OnTask3);
+	}
+}
+
+void ARepPracCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ARepPracCharacter, Level, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(ARepPracCharacter, Exp, COND_OwnerOnly);
+	
+	DOREPLIFETIME(ARepPracCharacter, Health);
+}
+
+void ARepPracCharacter::Server_OnTask1_Implementation()
+{
+	Level += 1;
+	OnRepNotify_Level();
+}
+
+void ARepPracCharacter::Server_OnTask2_Implementation()
+{
+	Exp += 5.f;
+	OnRepNotify_Exp();
+}
+
+void ARepPracCharacter::Server_OnTask3_Implementation()
+{
+	Health += 10.f;
+	OnRepNotify_Health();
+}
+
+void ARepPracCharacter::OnRepNotify_Level()
+{
+	OnLevelChange.Broadcast(Level);
+}
+
+void ARepPracCharacter::OnRepNotify_Exp()
+{
+	OnExpChange.Broadcast(Exp);
+}
+
+void ARepPracCharacter::OnRepNotify_Health()
+{
+	OnHealthChange.Broadcast(Health);
+}
