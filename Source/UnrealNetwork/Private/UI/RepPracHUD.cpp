@@ -20,13 +20,9 @@ void ARepPracHUD::BeginPlay()
 		{
 			Character->OnLevelChange.AddDynamic(MainWidget, &URepPracMainWidget::UpdateLevelDisplay);
 			Character->OnExpChange.AddDynamic(MainWidget, &URepPracMainWidget::UpdateExpDisplay);
-			Character->OnHealthChange.AddDynamic(MainWidget, &URepPracMainWidget::UpdateHealthDisplay);
 
 			MainWidget->UpdateLevelDisplay(Character->GetLevel());
 			MainWidget->UpdateExpDisplay(Character->GetExp());
-			MainWidget->UpdateHealthDisplay(Character->GetHealth());
-
-			UE_LOG(LogTemp, Warning, TEXT("Successfully Bound to MainWidget!"));
 		}
 	}
 }

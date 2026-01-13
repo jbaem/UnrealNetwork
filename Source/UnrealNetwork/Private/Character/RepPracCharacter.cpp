@@ -21,10 +21,14 @@ void ARepPracCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	WidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+
 	if (UDisplayValuesWidget* Widget = Cast<UDisplayValuesWidget>(WidgetComponent->GetWidget()))
 	{
-		OnHealthChange.AddDynamic(Widget, &UDisplayValuesWidget::SetValueText);
+		Widget->SetWidgetSize(300.f, 50.f);
+		Widget->SetColors(FLinearColor::Red);
+		Widget->SetNameText(TEXT("Health"));
 		Widget->SetValueText(Health);
+		OnRepNotify_Health();
 	}
 }
 
@@ -86,5 +90,9 @@ void ARepPracCharacter::OnRepNotify_Exp()
 
 void ARepPracCharacter::OnRepNotify_Health()
 {
+	if (UDisplayValuesWidget* Widget = Cast<UDisplayValuesWidget>(WidgetComponent->GetUserWidgetObject()))
+	{
+		Widget->SetValueText(Health);
+	}
 	OnHealthChange.Broadcast(Health);
 }

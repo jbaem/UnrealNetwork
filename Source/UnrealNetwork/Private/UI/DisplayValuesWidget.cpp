@@ -33,3 +33,9 @@ void UDisplayValuesWidget::SetValueText(float InValue)
 {
 	Value->SetText(FText::AsNumber(InValue));
 }
+
+void UDisplayValuesWidget::SetColors(const FLinearColor& InColor)
+{
+	Name->SetColorAndOpacity(InColor);
+	Value->SetColorAndOpacity(InColor);
+}

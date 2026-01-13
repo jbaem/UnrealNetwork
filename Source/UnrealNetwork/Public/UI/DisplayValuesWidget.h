@@ -18,6 +18,7 @@ public:
 	void SetValueText(const FString& InValue);
 	void SetValueText(int32 InValue);
 	void SetValueText(float InValue);
+	void SetColors(const FLinearColor& InColor);
 
 public: 
 	UPROPERTY(meta = (BindWidget))
