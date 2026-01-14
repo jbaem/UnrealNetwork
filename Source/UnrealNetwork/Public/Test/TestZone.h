@@ -19,6 +19,10 @@ protected:
 public:	
 	virtual void Tick(float DeltaTime) override;
 
+	void DamagingPerSecond();
+
+	void DamageOverlappingActors();
+
 	UFUNCTION(BlueprintCallable)
 	void OnOverlapBegin(AActor* OverlappedActor, AActor* OtherActor);
 	UFUNCTION(BlueprintCallable)
@@ -34,4 +38,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Test")
 	TArray<TObjectPtr<AActor>> OverlappingActors;
+
+private:
+	FTimerHandle DamageTimerHandle;
 };

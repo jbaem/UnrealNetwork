@@ -26,30 +26,40 @@ void ATestZone::BeginPlay()
 	OnActorBeginOverlap.AddDynamic(this, &ATestZone::OnOverlapBegin);
 	OnActorEndOverlap.AddDynamic(this, &ATestZone::OnOverlapEnd);
 
+	DamagingPerSecond();
 }
 
 void ATestZone::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
+}
+
+void ATestZone::DamagingPerSecond()
+{
+	if(GetWorldTimerManager().IsTimerActive(DamageTimerHandle))
+	{
+		return;
+	}
+
 	//Apply damage to overlapping actors every second
-	FTimerHandle DamageTimerHandle;
 	GetWorldTimerManager().SetTimer(
-		DamageTimerHandle, 
-		[this]()
-			{
-				for (AActor* Actor : OverlappingActors)
-				{
-					if (Actor)
-					{
-						UGameplayStatics::ApplyDamage(Actor, 10.f, nullptr, this, nullptr);
-					}
-				}
-			}, 
-		2.0f, 
+		DamageTimerHandle,
+		this,
+		&ATestZone::DamageOverlappingActors,
+		1.0f,
 		true
 	);
+}
 
+void ATestZone::DamageOverlappingActors()
+{
+	for (AActor* Actor : OverlappingActors)
+	{
+		if (Actor)
+		{
+			UGameplayStatics::ApplyDamage(Actor, 10.f, nullptr, this, nullptr);
+		}
+	}
 }
 
 void ATestZone::OnOverlapBegin(AActor* OverlappedActor, AActor* OtherActor)
