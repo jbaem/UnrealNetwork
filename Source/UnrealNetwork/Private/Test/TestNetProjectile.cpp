@@ -39,6 +39,7 @@ void ATestNetProjectile::BeginPlay()
 	{
 		// Ignore the actor that fired the projectile
 		Collision->IgnoreActorWhenMoving(GetInstigator(), true); 
+		GetInstigator()->MoveIgnoreActorAdd(this);
 	}
 
 	OnActorHit.AddDynamic(this, &ATestNetProjectile::OnHit);
