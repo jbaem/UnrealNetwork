@@ -24,6 +24,12 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void Server_Fire();
 
+	UFUNCTION(Client, Reliable)
+	void Client_OnHit();
+
+	UFUNCTION()
+	void OnTakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<class USceneComponent> MuzzleLocation = nullptr;

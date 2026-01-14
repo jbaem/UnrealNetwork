@@ -14,6 +14,8 @@ ARPCCharacter::ARPCCharacter()
 void ARPCCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	OnTakeAnyDamage.AddDynamic(this, &ARPCCharacter::OnTakeDamage);
 }
 
 void ARPCCharacter::Fire()
@@ -23,6 +25,15 @@ void ARPCCharacter::Fire()
 	{
 		// Call the server RPC
 		Server_Fire(); 
+	}
+}
+
+void ARPCCharacter::OnTakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+{
+	if (HasAuthority())
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("%s took %f damage from %s"), *GetName(), Damage, *DamageCauser->GetName()));
+		Client_OnHit();
 	}
 }
 
@@ -38,8 +49,14 @@ void ARPCCharacter::Server_Fire_Implementation()
 		SpawnParams.Owner = this;
 		SpawnParams.Instigator = GetInstigator();
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-			
+
 		// Spawn the projectile on the server
 		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnLocation, SpawnRotation, SpawnParams);
 	}
+}
+
+
+void ARPCCharacter::Client_OnHit_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("You have been hit!"));
 }

@@ -20,10 +20,10 @@ ATestNetProjectile::ATestNetProjectile()
 	RootComponent = Collision;
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh->SetupAttachment(RootComponent);
 	
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
-	ProjectileMovement->UpdatedComponent = Collision;
 	ProjectileMovement->InitialSpeed = 1000.f;
 	ProjectileMovement->MaxSpeed = 1000.f;
 	ProjectileMovement->bShouldBounce = true;
@@ -54,19 +54,18 @@ void ATestNetProjectile::OnHit(AActor* SlefActor, AActor* OtherActor, FVector No
 	// Only the server should handle hit logic
 	if(HasAuthority())
 	{
-		// Apply damage or other effects to the character
-		if (!bHitProcessed && OtherActor->IsA<ACharacter>())
+		if(bHitProcessed || OtherActor == nullptr || OtherActor == GetInstigator())
 		{
-			if(GetInstigator())
-			{
-				UE_LOG(LogTemp, Log, TEXT("%s \'s Projectile hit character: %s"), *GetInstigator()->GetName(), *OtherActor->GetName());
-			}
+			return;
+		}
 
+		// Apply damage or other effects to the character
+		if (OtherActor->IsA<ACharacter>())
+		{
 			// All clients should see the hit effect
 			Multicast_OnHitEffect(Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
-
-			SetLifeSpan(2.0f);
 			bHitProcessed = true;
+			SetLifeSpan(2.0f);
 		}
 	}
 }
