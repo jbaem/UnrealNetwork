@@ -4,6 +4,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "GameFramework/Character.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "NiagaraSystem.h"
 #include "NiagaraFunctionLibrary.h"
@@ -65,6 +66,8 @@ void ATestNetProjectile::OnHit(AActor* SlefActor, AActor* OtherActor, FVector No
 		// Apply damage or other effects to the character
 		if (OtherActor->IsA<ACharacter>())
 		{
+			UGameplayStatics::ApplyDamage(OtherActor, 10.0f, GetInstigatorController(), this, UDamageType::StaticClass());
+
 			// All clients should see the hit effect
 			Multicast_OnHitEffect(Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
 		}

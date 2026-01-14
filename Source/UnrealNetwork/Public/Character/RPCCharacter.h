@@ -36,4 +36,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NT|TestRPC")
 	TSubclassOf<AActor> ProjectileClass = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NT|TestRPC")
+	TSubclassOf<class UCameraShakeBase> CameraShakeClass = nullptr;
 };

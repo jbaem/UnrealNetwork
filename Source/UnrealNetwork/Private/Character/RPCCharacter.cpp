@@ -32,7 +32,7 @@ void ARPCCharacter::OnTakeDamage(AActor* DamagedActor, float Damage, const UDama
 {
 	if (HasAuthority())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("%s took %f damage from %s"), *GetName(), Damage, *DamageCauser->GetName()));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("%s took %f damage from %s"), *GetName(), Damage, *DamageCauser->GetName()));
 		Client_OnHit();
 	}
 }
@@ -58,5 +58,11 @@ void ARPCCharacter::Server_Fire_Implementation()
 
 void ARPCCharacter::Client_OnHit_Implementation()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("You have been hit!"));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("You have been hit!"));
+
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (PC)
+	{
+		PC->ClientStartCameraShake(CameraShakeClass, 1.0f);
+	}
 }
