@@ -59,13 +59,14 @@ void ATestNetProjectile::OnHit(AActor* SlefActor, AActor* OtherActor, FVector No
 			return;
 		}
 
+		bHitProcessed = true;
+		SetLifeSpan(2.0f);
+
 		// Apply damage or other effects to the character
 		if (OtherActor->IsA<ACharacter>())
 		{
 			// All clients should see the hit effect
 			Multicast_OnHitEffect(Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
-			bHitProcessed = true;
-			SetLifeSpan(2.0f);
 		}
 	}
 }
