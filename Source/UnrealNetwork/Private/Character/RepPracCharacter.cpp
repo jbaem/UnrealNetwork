@@ -20,13 +20,13 @@ void ARepPracCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	WidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	WidgetComponent->SetWidgetSpace(EWidgetSpace::World);
 
 	if (UDisplayValuesWidget* Widget = Cast<UDisplayValuesWidget>(WidgetComponent->GetWidget()))
 	{
 		Widget->SetWidgetSize(300.f, 50.f);
 		Widget->SetColors(FLinearColor::Red);
-		Widget->SetNameText(TEXT("Health"));
+		Widget->SetNameText(TEXT("Health: "));
 		Widget->SetValueText(Health);
 		OnRepNotify_Health();
 	}
@@ -36,6 +36,22 @@ void ARepPracCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (WidgetComponent)
+	{
+		APlayerController* PC = GetWorld()->GetFirstPlayerController();
+		if(PC && PC->PlayerCameraManager)
+		{
+			// way 1: look at camera
+			//FVector CameraLocation = PC->PlayerCameraManager->GetCameraLocation();
+			//FVector ToCamera = CameraLocation - WidgetComponent->GetComponentLocation();
+			//FRotator LookAtRotation = FRotationMatrix::MakeFromX(ToCamera).Rotator();
+			
+			// way 2: face camera forward vector
+			FVector CameraForward = PC->PlayerCameraManager->GetCameraRotation().Vector();
+			FRotator LookAtRotation = FRotationMatrix::MakeFromX(-CameraForward).Rotator();
+			WidgetComponent->SetWorldRotation(LookAtRotation);
+		}
+	}
 }
 
 void ARepPracCharacter::SetupPlayerInputComponent(UInputComponent * PlayerInputComponent)
