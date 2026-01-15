@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 
+#include "Types/SlateEnums.h"
+
 #include "PSMainWidget.generated.h"
 
 UCLASS()
@@ -15,7 +17,12 @@ public:
 
 	void UpdateScore(int32 NewScore);
 
+	UFUNCTION()
+	void NameCommitted(const FText& InText, ETextCommit::Type InCommit);
+
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UDisplayValuesWidget> ScoreWidget;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UEditableText> PlayerName;
 };

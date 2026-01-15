@@ -8,6 +8,8 @@
 
 APSCharacter::APSCharacter()
 {
+	bReplicates = true;
+
 	WidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComp"));
 	WidgetComp->SetupAttachment(RootComponent);
 }
@@ -15,13 +17,6 @@ APSCharacter::APSCharacter()
 void APSCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	UUserWidget* RawWidget = WidgetComp->GetUserWidgetObject();
-	if (!RawWidget)
-	{
-		WidgetComp->InitWidget();
-		RawWidget = WidgetComp->GetUserWidgetObject();
-	}
 
 	ScoreWidget = Cast<UDisplayValuesWidget>(WidgetComp->GetWidget());
 	ScoreWidget->SetNameText(TEXT("Score: "));
@@ -91,6 +86,15 @@ void APSCharacter::OnRep_Score()
 	if (ScoreWidget.IsValid())
 	{
 		ScoreWidget->SetValueText(Score);
+	}
+}
+
+void APSCharacter::Server_SetMyName_Implementation(const FString& InName)
+{
+	AMyPlayerState* PS = GetPlayerState<AMyPlayerState>();
+	if (PS)
+	{
+		PS->SetMyName(InName);
 	}
 }
 

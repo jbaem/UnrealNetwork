@@ -24,11 +24,28 @@ void AMyPlayerState::AddMyScore(int32 InScore)
 	}
 }
 
+void AMyPlayerState::SetMyName(const FString& InName)
+{
+	if (HasAuthority())
+	{
+		if (InName.IsEmpty())
+		{
+			MyName = TEXT("My Player");
+			return;
+		}
+		else
+		{
+			MyName = InName;
+		}
+	}
+}
+
 void AMyPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AMyPlayerState, MyScore); // Replicate all clients.
+	DOREPLIFETIME(AMyPlayerState, MyName);
 }
 
 void AMyPlayerState::OnRep_MyScore()
@@ -46,3 +63,6 @@ void AMyPlayerState::OnRep_MyScore()
 
 	}
 }
+
+void AMyPlayerState::OnRep_MyName()
+{}

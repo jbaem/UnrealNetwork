@@ -19,7 +19,8 @@ public class UnrealNetwork : ModuleRules
 			"GameplayStateTreeModule",
 			"UMG",
 			"Slate",
-			"Niagara",
+			"SlateCore",
+            "Niagara",
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });

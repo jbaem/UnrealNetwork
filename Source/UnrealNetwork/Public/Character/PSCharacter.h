@@ -23,6 +23,9 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void Server_AddScore(int32 Point);
 
+	UFUNCTION(Server, Reliable)
+	void Server_SetMyName(const FString& InName);
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "NT|Test")
 	void TestAddScore(int32 Point);
