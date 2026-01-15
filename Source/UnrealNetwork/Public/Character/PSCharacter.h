@@ -14,7 +14,11 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	void BindPlayerState();
+	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
+	virtual void OnRep_PlayerState() override;
 
 	UFUNCTION(Server, Reliable)
 	void Server_AddScore(int32 Point);
@@ -23,4 +27,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "NT|Test")
 	void TestAddScore(int32 Point);
 
+	UFUNCTION()
+	void UpdateScore(int32 NewScore);
+
+	UFUNCTION()
+	void OnRep_Score();
+
+protected:
+	UPROPERTY(EditAnywhere, Category = "NT|UI")
+	TObjectPtr<class UWidgetComponent> WidgetComp;
+	UPROPERTY()
+	TWeakObjectPtr<class UDisplayValuesWidget> ScoreWidget;
+	
+	UPROPERTY(ReplicatedUsing = OnRep_Score)
+	int32 Score = 0;
 };

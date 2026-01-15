@@ -1,6 +1,10 @@
 #include "Framework/MyPlayerState.h"
 
 #include "Net/UnrealNetwork.h"
+#include "UI/PSHUD.h"
+#include "UI/PSMainWidget.h"
+
+#include "Character/PSCharacter.h"
 
 AMyPlayerState::AMyPlayerState()
 {}
@@ -10,10 +14,14 @@ void AMyPlayerState::AddMyScore(int32 InScore)
 	if (HasAuthority())
 	{
 		MyScore += InScore;
-		// Server does not have replication, call manipulating
+		if (APSCharacter* MyChar = Cast<APSCharacter>(GetPawn()))
+		{
+			MyChar->UpdateScore(MyScore);
+		}
+
+		OnMyScoreChanged.Broadcast(MyScore);
 		OnRep_MyScore();
 	}
-
 }
 
 void AMyPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&OutLifetimeProps) const
@@ -25,6 +33,16 @@ void AMyPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&OutLif
 
 void AMyPlayerState::OnRep_MyScore()
 {
-	// TODO: Update UI
-	UE_LOG(LogTemp, Log, TEXT("Score : %d"), MyScore);
+	APlayerController* PC = GetPlayerController();
+	if (PC)
+	{
+		if (PC->IsLocalController())
+		{
+			AHUD* MyHUD = GetWorld()->GetFirstPlayerController()->GetHUD();
+			APSHUD* PSHud = Cast<APSHUD>(MyHUD);
+
+			PSHud->GetMainWidget()->UpdateScore(MyScore);
+		}
+
+	}
 }

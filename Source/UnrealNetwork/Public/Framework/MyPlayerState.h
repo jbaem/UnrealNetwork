@@ -5,6 +5,8 @@
 
 #include "MyPlayerState.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMyScoreChanged, int32, NewScore);
+
 UCLASS()
 class UNREALNETWORK_API AMyPlayerState : public APlayerState
 {
@@ -12,6 +14,8 @@ class UNREALNETWORK_API AMyPlayerState : public APlayerState
 
 public:
 	AMyPlayerState();	
+
+	FOnMyScoreChanged OnMyScoreChanged;
 
 	UFUNCTION(BlueprintCallable, Category = "NT|Data")
 	void AddMyScore(int32 InScore);
@@ -27,6 +31,4 @@ protected:
 
 	UPROPERTY(ReplicatedUsing = OnRep_MyScore, BlueprintReadOnly, Category = "NT|Data")
 	int32 MyScore = 0;
-
-
 };
