@@ -16,7 +16,7 @@ ATestZone::ATestZone()
 	RootComponent = ZoneAreaComponent;
 
 	ZoneEffectComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("ZoneEffectComponent"));
-
+	ZoneEffectComponent->SetupAttachment(RootComponent);
 }
 
 void ATestZone::BeginPlay()
