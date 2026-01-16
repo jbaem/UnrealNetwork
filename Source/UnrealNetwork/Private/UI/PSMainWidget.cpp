@@ -22,9 +22,12 @@ void UPSMainWidget::UpdateScore(int32 NewScore)
 
 void UPSMainWidget::NameCommitted(const FText& InText, ETextCommit::Type InCommit)
 {
-	AMyPlayerState* PS = GetOwningPlayerState<AMyPlayerState>();
-	if (PS)
+	if(InCommit == ETextCommit::OnEnter)
 	{
-		PS->SetMyName(InText.ToString());
+		AMyPlayerState* PS = GetOwningPlayerState<AMyPlayerState>();
+		if (PS)
+		{
+			PS->SetMyName(InText.ToString());
+		}
 	}
 }
