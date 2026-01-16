@@ -4,16 +4,31 @@
 
 ATestGameState::ATestGameState()
 {
+	PrimaryActorTick.bCanEverTick = true;
+}
 
+void ATestGameState::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	GameRemainTime = GameOverTimeLimit;
+	
 }
 
 void ATestGameState::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if(HasAuthority())
+	if(HasAuthority() && !bIsGameOver)
 	{
 		GameEalpsedTime += DeltaSeconds;
+		GameRemainTime -= DeltaSeconds;
+
+		if(GameRemainTime < 0.f)
+		{
+			GameRemainTime = 0.f;
+			OnGameOver();
+		}
 	}
 }
 
@@ -22,4 +37,23 @@ void ATestGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&OutLif
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ATestGameState, GameEalpsedTime);
+	DOREPLIFETIME(ATestGameState, GameRemainTime);
+	DOREPLIFETIME(ATestGameState, bIsGameOver);
+}
+
+void ATestGameState::OnRep_IsGameOver()
+{
+	if (bIsGameOver)
+	{
+		OnGameOverDel.Broadcast();
+	}
+}
+
+void ATestGameState::OnGameOver()
+{
+	if(HasAuthority())
+	{
+		bIsGameOver = true;
+		OnRep_IsGameOver();
+	}
 }
