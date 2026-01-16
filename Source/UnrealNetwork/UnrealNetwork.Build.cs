@@ -21,6 +21,7 @@ public class UnrealNetwork : ModuleRules
 			"Slate",
 			"SlateCore",
             "Niagara",
+			"Netcore",
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
