@@ -14,14 +14,13 @@ public class UnrealNetwork : ModuleRules
 			"Engine",
 			"InputCore",
 			"EnhancedInput",
-			"AIModule",
-			"StateTreeModule",
+			"AIModule", "StateTreeModule",
 			"GameplayStateTreeModule",
-			"UMG",
-			"Slate",
-			"SlateCore",
+			"UMG", "Slate", "SlateCore",
             "Niagara",
-			"Netcore",
+			"NetCore",
+			"NavigationSystem",
+            "GameplayAbilities", "GameplayTags", "GameplayTasks",
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
