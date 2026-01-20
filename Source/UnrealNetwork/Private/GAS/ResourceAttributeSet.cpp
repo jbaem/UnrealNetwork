@@ -47,9 +47,9 @@ void UResourceAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCa
 	}
 }
 
-void UResourceAttributeSet::OnRep_Health(const FGameplayAttributeData & OldMaxHealth)
+void UResourceAttributeSet::OnRep_Health(const FGameplayAttributeData & OldHealth)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UResourceAttributeSet, Health, OldMaxHealth);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UResourceAttributeSet, Health, OldHealth);
 }
 
 void UResourceAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData & OldMaxHealth)

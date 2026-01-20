@@ -20,7 +20,7 @@ public:
 
 protected:
 	UFUNCTION()
-	void OnRep_Health(const FGameplayAttributeData& OldMaxHealth);
+	void OnRep_Health(const FGameplayAttributeData& OldHealth);
 	UFUNCTION()
 	void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth);
 

@@ -27,10 +27,19 @@ protected:
 
 	virtual void OnHealthChanged(const FOnAttributeChangeData& Data);
 	
+	UFUNCTION(BlueprintCallable, Category = "NT|GAS")
+	void TestActivateAbility();
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NT|GAS")
 	TObjectPtr<class UAbilitySystemComponent> ASC = nullptr;
 
 	UPROPERTY()
 	TObjectPtr<class UResourceAttributeSet> ResourceAttributeSet = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "NT|Ability")
+	TSubclassOf<class UGameplayAbility> AbilityClass = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NT|UI")
+	TObjectPtr<class UWidgetComponent> HealthWidget = nullptr;
 };

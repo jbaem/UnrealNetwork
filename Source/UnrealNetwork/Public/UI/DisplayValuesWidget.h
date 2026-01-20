@@ -15,8 +15,10 @@ public:
 
 	void SetWidgetSize(float InWidth, float InHeight);
 	void SetNameText(const FString& InName);
+	void SetNameText(FText InName);
 	void SetValueText(const FString& InValue);
 	void SetValueText(int32 InValue);
+	void SetValueText(FText InValue);
 	void SetValueText(float InValue);
 	void SetColors(const FLinearColor& InColor);
 

@@ -19,6 +19,11 @@ void UDisplayValuesWidget::SetNameText(const FString & InName)
 	Name->SetText(FText::FromString(InName));
 }
 
+void UDisplayValuesWidget::SetNameText(FText InName)
+{
+	Name->SetText(InName);
+}
+
 void UDisplayValuesWidget::SetValueText(const FString & InValue)
 {
 	Value->SetText(FText::FromString(InValue));
@@ -27,6 +32,11 @@ void UDisplayValuesWidget::SetValueText(const FString & InValue)
 void UDisplayValuesWidget::SetValueText(int32 InValue)
 {
 	Value->SetText(FText::AsNumber(InValue));
+}
+
+void UDisplayValuesWidget::SetValueText(FText InValue)
+{
+	Value->SetText(InValue);
 }
 
 void UDisplayValuesWidget::SetValueText(float InValue)
