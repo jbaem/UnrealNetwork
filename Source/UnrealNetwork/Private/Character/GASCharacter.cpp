@@ -19,6 +19,10 @@
 
 #include "Framework/GASPlayerState.h"
 
+#include "NiagaraComponent.h"
+#include "NiagaraSystem.h"
+#include "NiagaraFunctionLibrary.h"
+
 AGASCharacter::AGASCharacter()
 	: AUnrealNetworkCharacter()
 {
@@ -38,7 +42,6 @@ void AGASCharacter::BeginPlay()
 
 	bUseControllerRotationYaw = true;
 	GetCharacterMovement()->bOrientRotationToMovement = false;
-
 }
 
 void AGASCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -58,7 +61,9 @@ void AGASCharacter::SetupPlayerInputComponent(UInputComponent * PlayerInputCompo
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
-		EnhancedInputComponent->BindAction(Ability1InputAction, ETriggerEvent::Started, this, &AGASCharacter::OnInputAbilityPressed);
+		EnhancedInputComponent->BindAction(Ability1InputAction, ETriggerEvent::Started, this, &AGASCharacter::OnInputAbility1Pressed);
+		EnhancedInputComponent->BindAction(Ability2InputAction, ETriggerEvent::Started, this, &AGASCharacter::OnInputAbility2Pressed);
+		EnhancedInputComponent->BindAction(Ability2InputAction, ETriggerEvent::Completed, this, &AGASCharacter::OnInputAbility2Released);
 	}
 }
 
@@ -88,6 +93,18 @@ void AGASCharacter::InitializeInputBind(AController* ControllerToBind)
 
 void AGASCharacter::ClearInputBind()
 {	
+	if (OnAbility1Press.IsBound())
+	{
+		OnAbility1Press.Unbind();
+	}
+	if (OnAbility2Press.IsBound())
+	{
+		OnAbility2Press.Unbind();
+	}
+	if(OnAbility2Release.IsBound())
+	{
+		OnAbility2Release.Unbind();
+	}
 }
 
 void AGASCharacter::InitializeAbilitySystem()
@@ -111,6 +128,8 @@ void AGASCharacter::InitializeAbilitySystem()
 			UpdateHealthWidget();
 
 			bAbilitySystemInitialized = true;
+
+			PS->SetDefaultAbilitySystemData();
 		}
 	}
 
@@ -124,6 +143,51 @@ void AGASCharacter::OnHealthChanged(const FOnAttributeChangeData & Data)
 	UpdateHealthWidget();
 }
 
+void AGASCharacter::Multicast_StopBeam_Implementation()
+{
+	if(BeamNiagaraComponent)
+	{
+		BeamNiagaraComponent->DestroyComponent();
+		BeamNiagaraComponent = nullptr;
+	}
+}
+
+void AGASCharacter::Multicast_UpdateBeamEndPoint_Implementation(FName BeamEndParam, const FVector& EndPoint)
+{
+	if (BeamNiagaraComponent)
+	{
+		BeamNiagaraComponent->SetVariablePosition(BeamEndParam, EndPoint);
+	}
+}
+
+void AGASCharacter::Multicast_StartBeam_Implementation(UNiagaraSystem* BeamSystem, FName BeamEndParam)
+{
+	if (BeamSystem)
+	{
+		if (BeamNiagaraComponent)
+		{
+			BeamNiagaraComponent->DestroyComponent();
+			BeamNiagaraComponent = nullptr;
+		}
+
+		BeamNiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
+			BeamSystem,
+			GetRootComponent(),
+			NAME_None,
+			FVector::ZeroVector,
+			FRotator::ZeroRotator,
+			EAttachLocation::SnapToTarget,
+			true
+		);
+
+		if(BeamNiagaraComponent)
+		{
+			// Set the beam end point to initial location (= character location)
+			BeamNiagaraComponent->SetVariablePosition(BeamEndParam, GetActorLocation());
+		}
+	}
+}
+
 void AGASCharacter::UpdateHealthWidget()
 {
 	if (HealthWidget && HealthWidget->GetWidget())
@@ -134,34 +198,46 @@ void AGASCharacter::UpdateHealthWidget()
 	}
 }
 
-void AGASCharacter::OnInputAbilityPressed()
+void AGASCharacter::OnInputAbility1Pressed()
 {
-	OnAbilityPress.ExecuteIfBound();
-
+	OnAbility1Press.ExecuteIfBound();
 	if (ASC)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Input Success"));
-		Server_ExecuteAbility();
+		Server_ExecuteAbility1();
 	}
 }
 
-void AGASCharacter::Server_ExecuteAbility_Implementation()
+void AGASCharacter::OnInputAbility2Pressed()
 {
-	UE_LOG(LogTemp, Log, TEXT("Call Server RPC"));
+	OnAbility2Press.ExecuteIfBound();
+	if (ASC)
+	{
+		Server_ExecuteAbility2();
+	}
+}
+
+void AGASCharacter::OnInputAbility2Released()
+{
+	OnAbility2Release.ExecuteIfBound();
+	if (ASC)
+	{
+		Server_EndAbility2();
+	}
+}
+
+void AGASCharacter::Server_ExecuteAbility1_Implementation()
+{
 	ASC->AbilityLocalInputPressed(static_cast<int32>(EAbilityInputID::Shoot));
 }
 
-void AGASCharacter::TestActivateAbility()
+void AGASCharacter::Server_ExecuteAbility2_Implementation()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, TEXT("TestActivateAbility 시작"));
-	if (ASC)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, TEXT("TestActivateAbility : ASC 있음"));
-		bool Result = ASC->TryActivateAbilityByClass(AbilityClass);
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red,
-			FString::Printf(TEXT("TestActivateAbility : %s"),
-				Result ? TEXT("성공") : TEXT("실패")));
-	}
+	ASC->AbilityLocalInputPressed(static_cast<int32>(EAbilityInputID::Beam));
+}
+
+void AGASCharacter::Server_EndAbility2_Implementation()
+{
+	ASC->AbilityLocalInputReleased(static_cast<int32>(EAbilityInputID::Beam));
 }
 
 float AGASCharacter::GetHealth() const
@@ -172,4 +248,12 @@ float AGASCharacter::GetHealth() const
 float AGASCharacter::GetMaxHealth() const
 {
 	return ResourceAS ? ResourceAS->GetMaxHealth() : 0.f;
+}
+
+void AGASCharacter::Server_RequestIgnoreMoveInput_Implementation(bool bIgnore)
+{
+	if(APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		PC->SetIgnoreMoveInput(bIgnore);
+	}
 }

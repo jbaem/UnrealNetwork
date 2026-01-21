@@ -8,7 +8,7 @@
 
 #include "GASCharacter.generated.h"
 
-DECLARE_DELEGATE(FOnAbilityPress)
+DECLARE_DELEGATE(FOnAbilityInput)
 
 struct FOnAttributeChangeData;
 
@@ -20,7 +20,9 @@ class UNREALNETWORK_API AGASCharacter : public AUnrealNetworkCharacter, public I
 public:
 	AGASCharacter();
 
-	FOnAbilityPress OnAbilityPress;
+	FOnAbilityInput OnAbility1Press;
+	FOnAbilityInput OnAbility2Press;
+	FOnAbilityInput OnAbility2Release;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return ASC; }
 
@@ -32,18 +34,36 @@ protected:
 
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void UnPossessed() override;
-	virtual void OnRep_PlayerState() override;
-
-	virtual void OnHealthChanged(const FOnAttributeChangeData& Data);
-
 	
-	UFUNCTION(BlueprintCallable, Category = "NT|GAS")
-	void TestActivateAbility();
+	virtual void OnRep_PlayerState() override;
+	virtual void OnHealthChanged(const FOnAttributeChangeData& Data);
+	
+public:
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_StartBeam(class UNiagaraSystem* BeamSystem, FName BeamEndParam);
 
-	void OnInputAbilityPressed();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_UpdateBeamEndPoint(FName BeamEndParam, const FVector& EndPoint);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_StopBeam();
 
 	UFUNCTION(Server, Reliable)
-	void Server_ExecuteAbility();
+	void Server_RequestIgnoreMoveInput(bool bIgnore);
+
+	UFUNCTION(Server, Reliable)
+	void Server_ExecuteAbility1();
+
+	UFUNCTION(Server, Reliable)
+	void Server_ExecuteAbility2();
+
+	UFUNCTION(Server, Reliable)
+	void Server_EndAbility2();
+
+protected:
+	void OnInputAbility1Pressed();
+	void OnInputAbility2Pressed();
+	void OnInputAbility2Released();
 
 private:
 	void InitializeInputBind(AController* ControllerToBind);
@@ -76,6 +96,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "NT|Input")
 	TObjectPtr<class UInputAction> Ability1InputAction = nullptr;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "NT|Input")
+	TObjectPtr<class UInputAction> Ability2InputAction = nullptr;
+
 private:
 	bool bAbilitySystemInitialized = false;
+
+	UPROPERTY()
+	class UNiagaraComponent* BeamNiagaraComponent = nullptr;
 };
