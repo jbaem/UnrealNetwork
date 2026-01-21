@@ -35,6 +35,7 @@ protected:
 	virtual void OnRep_PlayerState() override;
 
 	virtual void OnHealthChanged(const FOnAttributeChangeData& Data);
+
 	
 	UFUNCTION(BlueprintCallable, Category = "NT|GAS")
 	void TestActivateAbility();
@@ -48,6 +49,7 @@ private:
 	void InitializeInputBind(AController* ControllerToBind);
 	void ClearInputBind();
 	void InitializeAbilitySystem();
+	void UpdateHealthWidget();
 
 public:
 	class UResourceAttributeSet* GetResourceAttributeSet() const { return ResourceAS; }
@@ -69,7 +71,7 @@ protected:
 	TSubclassOf<class UGameplayAbility> AbilityClass = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NT|UI")
-	TObjectPtr<class UWidgetComponent> HealthWidget = nullptr;
+	TObjectPtr<class UBilboardWidgetComponent> HealthWidget = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "NT|Input")
 	TObjectPtr<class UInputAction> Ability1InputAction = nullptr;

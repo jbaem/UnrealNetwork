@@ -12,6 +12,7 @@
 #include "GAS/GASEnums.h"
 
 #include "UI/DisplayValuesWidget.h"
+#include "UI/BilboardWidgetComponent.h"
 
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
@@ -26,7 +27,7 @@ AGASCharacter::AGASCharacter()
 	bUseControllerRotationYaw = true;
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 
-	HealthWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthWidget"));
+	HealthWidget = CreateDefaultSubobject<UBilboardWidgetComponent>(TEXT("HealthWidget"));
 	HealthWidget->SetupAttachment(RootComponent);
 
 }
@@ -107,12 +108,7 @@ void AGASCharacter::InitializeAbilitySystem()
 			FOnGameplayAttributeValueChange& OnHealthChangeDel = ASC->GetGameplayAttributeValueChangeDelegate(UResourceAttributeSet::GetHealthAttribute());
 			OnHealthChangeDel.AddUObject(this, &AGASCharacter::OnHealthChanged);
 			
-			if (HealthWidget && HealthWidget->GetWidget())
-			{
-				UDisplayValuesWidget* HealthDisplayWidget = Cast<UDisplayValuesWidget>(HealthWidget->GetWidget());
-				HealthDisplayWidget->SetNameText(FText::AsNumber(ResourceAS->GetHealth()));
-				HealthDisplayWidget->SetValueText(FText::AsNumber(ResourceAS->GetMaxHealth()));
-			}
+			UpdateHealthWidget();
 
 			bAbilitySystemInitialized = true;
 		}
@@ -125,6 +121,11 @@ void AGASCharacter::OnHealthChanged(const FOnAttributeChangeData & Data)
 	const float NewHealth = Data.NewValue;
 	UE_LOG(LogTemp, Log, TEXT("Health changed: %f"), NewHealth);
 
+	UpdateHealthWidget();
+}
+
+void AGASCharacter::UpdateHealthWidget()
+{
 	if (HealthWidget && HealthWidget->GetWidget())
 	{
 		UDisplayValuesWidget* HealthDisplayWidget = Cast<UDisplayValuesWidget>(HealthWidget->GetWidget());
